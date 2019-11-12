@@ -1,4 +1,4 @@
-let camera, scene, renderer, cube;
+let camera, scene, renderer, airplane, bullet;
 
 function init() {
     // Init scene
@@ -37,13 +37,13 @@ function init() {
     // const material = new THREE.MeshBasicMaterial({ map: texture });
 
     // Create mesh with geo and material
-    cube = new THREE.Mesh(geometry, material);
+    airplane = new THREE.Mesh(geometry, material);
 
     // Add to scene
-    scene.add(cube);
+    scene.add(airplane);
 
     // Position plane on the left side
-    cube.position.x = -6;
+    airplane.position.x = -6;
 
     // Position camera
     camera.position.z = 5;
@@ -52,6 +52,8 @@ function init() {
 // Draw the scene every time the screen is refreshed
 function animate() {
     requestAnimationFrame(animate);
+
+    if(bullet) animateBullet();
 
     renderer.render(scene, camera);
 }
@@ -69,8 +71,8 @@ function onWindowResize() {
 // Gets called when a button is pressed
 function onDocumentKeyDown(event) {
     // Plane speed
-    var xSpeed = 0.1;
-    var ySpeed = 0.1;
+    var xSpeed = 0.2;
+    var ySpeed = 0.2;
 
     var yMax = 3.2;
     var yMin = -3.2;
@@ -80,21 +82,49 @@ function onDocumentKeyDown(event) {
     var keyCode = event.which;
     // Up Arrow
     if (keyCode == 38) {
-        if (cube.position.y < yMax) cube.position.y += ySpeed;
+        if (airplane.position.y < yMax) airplane.position.y += ySpeed;
     }
     // Down Arrow
     else if (keyCode == 40) {
-        if (cube.position.y > yMin) cube.position.y -= ySpeed;
+        if (airplane.position.y > yMin) airplane.position.y -= ySpeed;
     } 
     // Left Arrow
     else if (keyCode == 37) {
-        if (cube.position.x > xMin) cube.position.x -= xSpeed;
+        if (airplane.position.x > xMin) airplane.position.x -= xSpeed;
     } 
     // Right Arrow
     else if (keyCode == 39) {
-        if (cube.position.x < xMax) cube.position.x += xSpeed;
+        if (airplane.position.x < xMax) airplane.position.x += xSpeed;
     }
-};
+    else if (keyCode == 32) {
+        if (!bullet) createBullet();
+    }
+}
+
+function createBullet(){
+    // Create bullet object
+    var circleGeometry = new THREE.CircleGeometry( 0.1 , 32 );
+    var circleMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+    bullet = new THREE.Mesh( circleGeometry, circleMaterial );
+
+    // Spawn bullet at plane
+    bullet.position.x = airplane.position.x;
+    bullet.position.y = airplane.position.y;
+
+    scene.add( bullet );
+}
+
+function animateBullet(){
+    bullet.position.x += 0.5
+    console.log(bullet.position.x);
+
+    // If the bullet is off the screen, remove it
+    if (bullet.position.x > 9) {
+        bullet = null;
+        scene.remove(bullet);
+        console.log("Remove bullet");
+    }
+}
 
 // Listen for keypresses
 window.addEventListener("keydown", onDocumentKeyDown, false);
