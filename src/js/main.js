@@ -4,6 +4,7 @@ function init() {
     // Init scene
     scene = new THREE.Scene();
 
+    // Set scene background to light blue
     scene.background = new THREE.Color(0x6197ed);
 
     // Init camera (PerspectiveCamera)
@@ -55,6 +56,7 @@ function animate() {
     renderer.render(scene, camera);
 }
 
+// Gets called when the screen is resized
 function onWindowResize() {
     // Camera frustum aspect ratio
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -64,6 +66,7 @@ function onWindowResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
+// Gets called when a button is pressed
 function onDocumentKeyDown(event) {
     // Plane speed
     var xSpeed = 0.1;
