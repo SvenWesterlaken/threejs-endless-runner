@@ -72,22 +72,27 @@ function onDocumentKeyDown(event) {
     var xSpeed = 0.1;
     var ySpeed = 0.1;
 
+    var yMax = 3.2;
+    var yMin = -3.2;
+    var xMax = 6;
+    var xMin = -6; 
+
     var keyCode = event.which;
     // Up Arrow
     if (keyCode == 38) {
-        cube.position.y += ySpeed;
+        if (cube.position.y < yMax) cube.position.y += ySpeed;
     }
     // Down Arrow
     else if (keyCode == 40) {
-        cube.position.y -= ySpeed;
+        if (cube.position.y > yMin) cube.position.y -= ySpeed;
     } 
     // Left Arrow
     else if (keyCode == 37) {
-        cube.position.x -= xSpeed;
+        if (cube.position.x > xMin) cube.position.x -= xSpeed;
     } 
     // Right Arrow
     else if (keyCode == 39) {
-        cube.position.x += xSpeed;
+        if (cube.position.x < xMax) cube.position.x += xSpeed;
     }
 };
 
