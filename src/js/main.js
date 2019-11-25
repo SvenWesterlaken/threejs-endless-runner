@@ -1,4 +1,9 @@
 let camera, scene, renderer, airplane, bullet;
+let obstacles = [];
+
+const MAX_BULLETS = 2;
+const BULLET_RADIUS = 0.1;
+const OBSTACLE_SIZE = 1;
 
 function init() {
     // Init scene
@@ -42,6 +47,10 @@ function init() {
     // Add to scene
     scene.add(airplane);
 
+    let obst = createObstacle(6,0);
+    scene.add(obst);
+    obstacles.push(obst);
+
     // Position plane on the left side
     airplane.position.x = -6;
 
@@ -54,6 +63,10 @@ function animate() {
     requestAnimationFrame(animate);
 
     if(bullet) animateBullet();
+
+    animateObstacles();
+
+    checkAndHandleCollisions();
 
     renderer.render(scene, camera);
 }
@@ -101,9 +114,34 @@ function onDocumentKeyDown(event) {
     }
 }
 
+function checkAndHandleCollisions() {
+    removeBuffer = [];
+    if(bullet) {
+        for (let i = obstacles.length - 1; i >= 0; i--) {
+            if(doTheseCollide(bullet, obstacles[i])) {
+                removeBuffer.push(obstacles[i]);
+            }
+        }
+    }
+    removeBuffer.forEach(item => scene.remove(item));
+    obstacles = obstacles.filter(item => !removeBuffer.includes(item));   
+}
+
+function doTheseCollide(bullet, square) {
+    let a = bullet.position;
+    let b = square.position;
+    if (a.x > b.x - (OBSTACLE_SIZE/2) 
+    &&  a.x < b.x + (OBSTACLE_SIZE/2)
+    &&  a.y > b.y - (OBSTACLE_SIZE/2)
+    &&  a.y < b.y + (OBSTACLE_SIZE/2)){
+        console.log("COLLIDING WOOP WOOP");
+        return true;
+    }
+}
+
 function createBullet(){
     // Create bullet object
-    var circleGeometry = new THREE.CircleGeometry( 0.1 , 32 );
+    var circleGeometry = new THREE.CircleGeometry( BULLET_RADIUS , 32 );
     var circleMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
     bullet = new THREE.Mesh( circleGeometry, circleMaterial );
 
@@ -120,10 +158,23 @@ function animateBullet(){
 
     // If the bullet is off the screen, remove it
     if (bullet.position.x > 9) {
-        bullet = null;
         scene.remove(bullet);
+        bullet = null;
         console.log("Remove bullet");
     }
+}
+
+function createObstacle(xpos=0, ypos=0) {
+    const obstacleGeometry = new THREE.BoxGeometry(OBSTACLE_SIZE, OBSTACLE_SIZE, 0.1);
+    const obstacleMaterial = new THREE.MeshBasicMaterial({color: 0x6666dd});
+    let obstacle = new THREE.Mesh(obstacleGeometry, obstacleMaterial);
+    obstacle.position.x = xpos;
+    obstacle.position.y = ypos;
+    return obstacle;
+}
+
+function animateObstacles() {
+    obstacles.forEach(o => {o.position.x -= 0.01});
 }
 
 // Listen for keypresses
