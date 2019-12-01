@@ -146,10 +146,11 @@ function checkAndHandleCollisions() {
     obstacles = obstacles.filter(item => !removeBuffer.includes(item));
 }
 
-function doTheseCollide(object1, object2) {
+function doTheseCollide(object1, obstacle) {
     let a = object1.position;
-    let b = object2.position;
+    let b = obstacle.position;
 
+    // Check if the meshes are overlapping;
     return a.x > b.x - (OBSTACLE_SIZE/2)
         && a.x < b.x + (OBSTACLE_SIZE/2)
         && a.y > b.y - (OBSTACLE_SIZE/2)
@@ -157,10 +158,11 @@ function doTheseCollide(object1, object2) {
 }
 
 function createBullet(){
-    // Create bullet object
-    var circleGeometry = new THREE.CircleGeometry( BULLET_RADIUS , 32 );
-    var circleMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
-    bullet = new THREE.Mesh( circleGeometry, circleMaterial );
+
+    var sphereGeometry = new THREE.DodecahedronGeometry( BULLET_RADIUS, 1);
+    var sphereMaterial = new THREE.MeshStandardMaterial( { color: 0xd63031 ,shading:THREE.FlatShading} )
+
+    bullet = new THREE.Mesh( sphereGeometry, sphereMaterial );
 
     // Spawn bullet at plane
     bullet.position.x = airplane.position.x;
