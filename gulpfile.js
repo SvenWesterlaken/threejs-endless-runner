@@ -35,7 +35,7 @@ gulp.task('jshint', () => {
 gulp.task('js', () => {
 
   const stream = gulp
-    .src('src/js/main.js', {read: false})
+    .src('src/js/*.js', {read: false})
     .pipe(tap((file) => {
 
       file.contents = browserify(file.path, {debug: true})
@@ -49,6 +49,7 @@ gulp.task('js', () => {
     .pipe(plumber())
     .pipe(buffer())
     .pipe(sourcemaps.init({loadMaps: true}))
+    .pipe(concat('main.js'))
     .pipe(uglify())
     .pipe(rename({suffix: '.min'}))
     .pipe(sourcemaps.write())
@@ -70,8 +71,8 @@ gulp.task('browser-sync', gulp.series('js', () => {
 }));
 
 gulp.task('watch', () => {
-  gulp.watch('src/js/*.js', gulp.series('js'));
-  gulp.watch('dist/index.html', gulp.series(browsersync.reload));
+  gulp.watch('./src/js/*.js', gulp.series('js'));
+  gulp.watch('./dist/index.html', gulp.series(browsersync.reload));
 });
 
 gulp.task('default', gulp.series('browser-sync', 'watch'));

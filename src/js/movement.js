@@ -7,7 +7,7 @@ function onDocumentKeyDown(event) {
     var yMax = 3.2;
     var yMin = -3.2;
     var xMax = 6;
-    var xMin = -6; 
+    var xMin = -6;
 
     var keyCode = event.which;
     // Up Arrow
@@ -17,11 +17,11 @@ function onDocumentKeyDown(event) {
     // Down Arrow
     else if (keyCode == 40) {
         if (airplane.position.y > yMin) airplane.position.y -= ySpeed;
-    } 
+    }
     // Left Arrow
     else if (keyCode == 37) {
         if (airplane.position.x > xMin) airplane.position.x -= xSpeed;
-    } 
+    }
     // Right Arrow
     else if (keyCode == 39) {
         if (airplane.position.x < xMax) airplane.position.x += xSpeed;

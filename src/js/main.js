@@ -1,9 +1,13 @@
+import * as THREE from 'three';
+
 let camera, scene, renderer, airplane, bullet;
 let obstacles = [];
+let score = 0;
 
 const MAX_BULLETS = 2;
 const BULLET_RADIUS = 0.1;
 const OBSTACLE_SIZE = 1;
+const OBSTACLE_INTERVAL = 1000;
 
 function init() {
     // Init scene
@@ -35,7 +39,7 @@ function init() {
     // Create material with color
     const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
-    // Add texture - 
+    // Add texture -
     // const texture = new THREE.TextureLoader().load('textures/crate.gif');
 
     // Create material with texture
@@ -47,9 +51,7 @@ function init() {
     // Add to scene
     scene.add(airplane);
 
-    let obst = createObstacle(6,0);
-    scene.add(obst);
-    obstacles.push(obst);
+    createMultipleObstacles();
 
     // Position plane on the left side
     airplane.position.x = -6;
@@ -90,7 +92,7 @@ function onDocumentKeyDown(event) {
     var yMax = 3.2;
     var yMin = -3.2;
     var xMax = 6;
-    var xMin = -6; 
+    var xMin = -6;
 
     var keyCode = event.which;
     // Up Arrow
@@ -100,11 +102,11 @@ function onDocumentKeyDown(event) {
     // Down Arrow
     else if (keyCode == 40) {
         if (airplane.position.y > yMin) airplane.position.y -= ySpeed;
-    } 
+    }
     // Left Arrow
     else if (keyCode == 37) {
         if (airplane.position.x > xMin) airplane.position.x -= xSpeed;
-    } 
+    }
     // Right Arrow
     else if (keyCode == 39) {
         if (airplane.position.x < xMax) airplane.position.x += xSpeed;
@@ -115,28 +117,33 @@ function onDocumentKeyDown(event) {
 }
 
 function checkAndHandleCollisions() {
-    removeBuffer = [];
-    if(bullet) {
-        for (let i = obstacles.length - 1; i >= 0; i--) {
-            if(doTheseCollide(bullet, obstacles[i])) {
-                removeBuffer.push(obstacles[i]);
-            }
-        }
+    const removeBuffer = [];
+    let i = obstacles.length - 1;
+
+    while (i >= 0 && bullet != null) {
+
+      if(doTheseCollide(bullet, obstacles[i])) {
+          score++;
+          scene.remove(bullet);
+          bullet = null;
+          removeBuffer.push(obstacles[i]);
+      }
+
+      i--;
     }
+
     removeBuffer.forEach(item => scene.remove(item));
-    obstacles = obstacles.filter(item => !removeBuffer.includes(item));   
+    obstacles = obstacles.filter(item => !removeBuffer.includes(item));
 }
 
-function doTheseCollide(bullet, square) {
-    let a = bullet.position;
-    let b = square.position;
-    if (a.x > b.x - (OBSTACLE_SIZE/2) 
-    &&  a.x < b.x + (OBSTACLE_SIZE/2)
-    &&  a.y > b.y - (OBSTACLE_SIZE/2)
-    &&  a.y < b.y + (OBSTACLE_SIZE/2)){
-        console.log("COLLIDING WOOP WOOP");
-        return true;
-    }
+function doTheseCollide(object1, object2) {
+    let a = object1.position;
+    let b = object2.position;
+
+    return a.x > b.x - (OBSTACLE_SIZE/2)
+        && a.x < b.x + (OBSTACLE_SIZE/2)
+        && a.y > b.y - (OBSTACLE_SIZE/2)
+        && a.y < b.y + (OBSTACLE_SIZE/2);
 }
 
 function createBullet(){
@@ -160,8 +167,18 @@ function animateBullet(){
     if (bullet.position.x > 9) {
         scene.remove(bullet);
         bullet = null;
-        console.log("Remove bullet");
     }
+}
+
+function createMultipleObstacles() {
+
+  setInterval(() => {
+    const yPos = Math.floor(Math.random() * 7) - 3;
+    const obst = createObstacle(6, yPos);
+    scene.add(obst);
+    obstacles.push(obst);
+  }, OBSTACLE_INTERVAL);
+
 }
 
 function createObstacle(xpos=0, ypos=0) {
@@ -174,7 +191,7 @@ function createObstacle(xpos=0, ypos=0) {
 }
 
 function animateObstacles() {
-    obstacles.forEach(o => {o.position.x -= 0.01});
+    obstacles.forEach(o => {o.position.x -= 0.04});
 }
 
 // Listen for keypresses
