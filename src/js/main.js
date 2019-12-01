@@ -1,7 +1,8 @@
 import * as THREE from 'three';
+import GLTFLoader from 'three-gltf-loader';
 import $ from 'jquery';
 
-let camera, scene, renderer, airplane, bullet, id;
+let camera, scene, renderer, airplane, bullet, id, cloud;
 let spawnLoop;
 let obstacles = [];
 let score = 0;
@@ -40,31 +41,26 @@ function init() {
     // Render to canvas element
     document.body.appendChild(renderer.domElement);
 
-    // Init BoxGeometry object (rectangular cuboid)
-    const geometry = new THREE.BoxGeometry(1, 0.3, 0.1);
+    const loader = new GLTFLoader();
 
-    // Create material with color
-    const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    loader.load('/models/plane.glb', (model) => {
+      airplane = model.scene;
+      scene.add(airplane);
+      airplane.position.x = -6;
+    }, undefined, err => console.error(err));
 
-    // Add texture -
-    // const texture = new THREE.TextureLoader().load('textures/crate.gif');
-
-    // Create material with texture
-    // const material = new THREE.MeshBasicMaterial({ map: texture });
-
-    // Create mesh with geo and material
-    airplane = new THREE.Mesh(geometry, material);
-
-    // Add to scene
-    scene.add(airplane);
+    loader.load('/models/cloud.glb', (model) => {
+      cloud = model.scene;
+    }, undefined, err => console.error(err));
 
     createMultipleObstacles();
 
-    // Position plane on the left side
-    airplane.position.x = -6;
-
     // Position camera
     camera.position.z = 5;
+
+    var directionalLight = new THREE.DirectionalLight( 0xffffff, 1.5 );
+
+    scene.add( directionalLight );
 }
 
 // Draw the scene every time the screen is refreshed
@@ -135,12 +131,12 @@ function checkAndHandleCollisions() {
           scene.remove(bullet);
           bullet = null;
           removeBuffer.push(obstacles[i]);
-          clearInterval(spawnLoop);
       }
 
       if (airplane != null && doTheseCollide(airplane, obstacles[i])) {
         cancelAnimationFrame(id);
-        loseScreen.show()
+        loseScreen.show();
+        clearInterval(spawnLoop);
       }
 
       i--;
@@ -174,8 +170,7 @@ function createBullet(){
 }
 
 function animateBullet(){
-    bullet.position.x += 0.5
-    console.log(bullet.position.x);
+    bullet.position.x += 0.5;
 
     // If the bullet is off the screen, remove it
     if (bullet.position.x > 9) {
@@ -187,25 +182,26 @@ function animateBullet(){
 function createMultipleObstacles() {
 
   spawnLoop = setInterval(() => {
-    const yPos = Math.floor(Math.random() * 7) - 3;
-    const obst = createObstacle(6, yPos);
-    scene.add(obst);
-    obstacles.push(obst);
-  }, OBSTACLE_INTERVAL);
 
+    if (cloud) {
+      const yPos = Math.floor(Math.random() * 7) - 3;
+      const obst = createObstacle(6, yPos);
+      scene.add(obst);
+      obstacles.push(obst);
+    }
+
+  }, OBSTACLE_INTERVAL);
 }
 
 function createObstacle(xpos=0, ypos=0) {
-    const obstacleGeometry = new THREE.BoxGeometry(OBSTACLE_SIZE, OBSTACLE_SIZE, 0.1);
-    const obstacleMaterial = new THREE.MeshBasicMaterial({color: 0x6666dd});
-    let obstacle = new THREE.Mesh(obstacleGeometry, obstacleMaterial);
+    const obstacle = cloud.clone();
     obstacle.position.x = xpos;
     obstacle.position.y = ypos;
     return obstacle;
 }
 
 function animateObstacles() {
-    obstacles.forEach(o => {o.position.x -= 0.04});
+    obstacles.forEach(o => {o.position.x -= 0.05});
 }
 
 $('#start').click(() => {
@@ -216,11 +212,17 @@ $('#start').click(() => {
 });
 
 $('#restart').click(() => {
+
+  scene.remove(airplane);
+  airplane = null;
+
   obstacles.forEach(item => scene.remove(item));
   obstacles = [];
   id = undefined;
   score = 0;
   scoreText.text(score + '');
+
+
   init();
   animate();
   loseScreen.hide();
