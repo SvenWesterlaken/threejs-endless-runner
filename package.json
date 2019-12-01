@@ -22,6 +22,7 @@
     "gulp-plumber": "^1.2.1",
     "gulp-rename": "^1.4.0",
     "gulp-sourcemaps": "^2.6.5",
+    "gulp-tap": "^2.0.0",
     "gulp-uglify": "^3.0.2",
     "gulplog": "^1.0.0",
     "through2": "^3.0.1",
@@ -29,7 +30,7 @@
     "vinyl-source-stream": "^2.0.0"
   },
   "dependencies": {
-    "gulp-tap": "^2.0.0",
+    "jquery": "^3.4.1",
     "lodash": "^4.17.15",
     "three": "^0.110.0"
   }

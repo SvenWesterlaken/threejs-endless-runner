@@ -1,6 +1,8 @@
 import * as THREE from 'three';
+import $ from 'jquery';
 
 let camera, scene, renderer, airplane, bullet, id;
+let spawnLoop;
 let obstacles = [];
 let score = 0;
 
@@ -8,6 +10,11 @@ const MAX_BULLETS = 2;
 const BULLET_RADIUS = 0.1;
 const OBSTACLE_SIZE = 1;
 const OBSTACLE_INTERVAL = 1000;
+
+const scoreText = $('#score');
+const loseScreen = $('#loseScreen');
+
+loseScreen.hide();
 
 function init() {
     // Init scene
@@ -124,13 +131,16 @@ function checkAndHandleCollisions() {
 
       if (bullet != null && doTheseCollide(bullet, obstacles[i])) {
           score++;
+          scoreText.text(score + '')
           scene.remove(bullet);
           bullet = null;
           removeBuffer.push(obstacles[i]);
+          clearInterval(spawnLoop);
       }
 
       if (airplane != null && doTheseCollide(airplane, obstacles[i])) {
         cancelAnimationFrame(id);
+        loseScreen.show()
       }
 
       i--;
@@ -176,7 +186,7 @@ function animateBullet(){
 
 function createMultipleObstacles() {
 
-  setInterval(() => {
+  spawnLoop = setInterval(() => {
     const yPos = Math.floor(Math.random() * 7) - 3;
     const obst = createObstacle(6, yPos);
     scene.add(obst);
@@ -198,11 +208,23 @@ function animateObstacles() {
     obstacles.forEach(o => {o.position.x -= 0.04});
 }
 
-// Listen for keypresses
-window.addEventListener("keydown", onDocumentKeyDown, false);
+$('#start').click(() => {
+  window.addEventListener("keydown", onDocumentKeyDown, false);
+  init();
+  animate();
+  $('#startscreen').hide();
+});
+
+$('#restart').click(() => {
+  obstacles.forEach(item => scene.remove(item));
+  obstacles = [];
+  id = undefined;
+  score = 0;
+  scoreText.text(score + '');
+  init();
+  animate();
+  loseScreen.hide();
+});
 
 //Listen for window resizes
 window.addEventListener('resize', onWindowResize, false);
-
-init();
-animate();
