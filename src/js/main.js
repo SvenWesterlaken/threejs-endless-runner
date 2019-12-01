@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-let camera, scene, renderer, airplane, bullet;
+let camera, scene, renderer, airplane, bullet, id;
 let obstacles = [];
 let score = 0;
 
@@ -62,7 +62,7 @@ function init() {
 
 // Draw the scene every time the screen is refreshed
 function animate() {
-    requestAnimationFrame(animate);
+    id = requestAnimationFrame(animate);
 
     if(bullet) animateBullet();
 
@@ -120,13 +120,17 @@ function checkAndHandleCollisions() {
     const removeBuffer = [];
     let i = obstacles.length - 1;
 
-    while (i >= 0 && bullet != null) {
+    while (i >= 0) {
 
-      if(doTheseCollide(bullet, obstacles[i])) {
+      if (bullet != null && doTheseCollide(bullet, obstacles[i])) {
           score++;
           scene.remove(bullet);
           bullet = null;
           removeBuffer.push(obstacles[i]);
+      }
+
+      if (airplane != null && doTheseCollide(airplane, obstacles[i])) {
+        cancelAnimationFrame(id);
       }
 
       i--;
